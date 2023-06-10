@@ -32,6 +32,24 @@ class TNet(nn.Module):
 
         return x
 
+def get_pretrained_model(model_type: type):
+    model = model_type(pretrained=True)
+
+    if model_type is models.resnet18:
+        num_ftrs = model.fc.in_features
+        # Here the size of each output sample is set to 2.
+        # Alternatively, it can be generalized to nn.Linear(num_ftrs, len(class_names)).
+        model.fc = nn.Linear(num_ftrs, 3)
+    elif model_type is models.alexnet:
+        num_ftrs = model_alex.classifier[6].in_features
+        model_alex.classifier[6] = nn.Linear(num_ftrs, 3)
+
+
+    for param in model.parameters():
+        param.requires_grad = True
+
+    return model.to(device)
+
 
 def get_prediction(img_filepath):
     img_size = (128, 128)
