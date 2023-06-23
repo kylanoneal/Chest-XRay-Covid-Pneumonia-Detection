@@ -8,7 +8,7 @@ Examples images:
 
 Created custom model which outperformed ResNet:
 
-![Architecture](https://github.com/kylanoneal/Chest-XRay-Covid-Pneumonia-Detection/assets/53407400/98c4068c-7382-49c6-a244-3129966b1824)
+![Architecture](https://github.com/kylanoneal/Chest-XRay-Covid-Pneumonia-Detection/assets/53407400/523a79ac-7a68-4828-9710-25936523c385)
 
 Achieved 94% accuracy on the testing set.
 
