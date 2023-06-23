@@ -4,9 +4,9 @@ import cv2
 import numpy as np
 
 
-class TNet(nn.Module):
+class CustomCNN(nn.Module):
     def __init__(self):
-        super(TNet, self).__init__()
+        super(CustomCNN, self).__init__()
 
         self.features = torch.nn.Sequential(
             nn.Conv2d(1, 32, 5),

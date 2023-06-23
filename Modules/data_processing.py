@@ -1,3 +1,10 @@
+import os
+import time
+import torch
+import numpy as np
+from numpy import random
+import cv2
+
 def load_dataset(img_paths, label_dict, num_images, img_size, shuffle=True, is_color=False, zero_centered=True,
                  batch_size=None, horizontal_flip=False):
     start_time = time.time()
@@ -26,7 +33,7 @@ def load_dataset(img_paths, label_dict, num_images, img_size, shuffle=True, is_c
         img = cv2.resize(img, img_size, cv2.INTER_LINEAR)
 
         # Normalize
-        img = img.astype(np.float) / 255 * 2 - 1
+        img = img.astype(float) / 255 * 2 - 1
 
         if horizontal_flip:
             flipped_img = cv2.flip(img, 1)
@@ -68,14 +75,14 @@ def load_dataset(img_paths, label_dict, num_images, img_size, shuffle=True, is_c
         labels = [labels[i * batch_size: (i + 1) * batch_size] for i in range(total_batches)]
 
     print("Minibatches created. Time: ", time.time() - start_time)
-    return zip(data, labels)
+    return list(zip(data, labels))
 
 
 # Create label dictionary: Key = filename, value = label
 # Function is necessary because labels are stored in .txt file
 
-def get_label_dict(path, img_path):
-    label_file = open(path, 'r')
+def get_label_dict(label_path, images_path):
+    label_file = open(label_path, 'r')
     lines = label_file.readlines()
     label_dict = {}
 
@@ -90,16 +97,24 @@ def get_label_dict(path, img_path):
         else:
             lbl = 2
 
-        label_dict[img_path + split[1]] = lbl
+        label_dict[images_path + split[1]] = lbl
 
     return label_dict
 
+def remove_non_labeled(label_dict, img_paths):
 
-# Some images do not have a label
-def remove_non_labeled(paths, label_dict):
-    labeled_img_paths = []
-    for path in paths:
-        if path in label_dict.keys():
-            labeled_img_paths.append(path)
+    return [img_path for img_path in img_paths if img_path in label_dict]
 
-    return labeled_img_paths
+def get_dataloader(images_path, label_path, img_size, batch_size):
+    label_dict = get_label_dict(label_path, images_path)
+
+    img_paths = [images_path + file for file in os.listdir(images_path)]
+
+    # Remove non-labeled images (there are a few hundred without labels)
+    img_paths = [img_path for img_path in img_paths if img_path in label_dict]
+
+    print("Total number of labeled images:", len(img_paths))
+
+    return load_dataset(img_paths, label_dict, num_images=len(img_paths), img_size=img_size,
+                                batch_size=batch_size)
+
